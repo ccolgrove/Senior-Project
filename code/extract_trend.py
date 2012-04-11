@@ -2,10 +2,15 @@ import sys
 import csv
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
+IMG_DIR = 'images/'
 FUNCTIONS = ['linear', 'exp', 'log', 'loglog']
+#FUNCTIONS = ['exp']
+SHOW_GRAPH = False
+SHOW_ALL_GRAPHS = False
 
-def fit_function(fun, xs, ys):
+def fit_function(fun, data_set, xs, ys):
   lin_xs = [x for x in xs]
   lin_ys = [y for y in ys]
 
@@ -25,14 +30,33 @@ def fit_function(fun, xs, ys):
   line = np.poly1d(coeffs)
 
   # calculate mean squared error
-  pred = [line(x) for x in lin_xs]
+  if fun == "exp":
+    pred = [math.exp(line(x)) for x in lin_xs]
+  else:
+    pred = [line(x) for x in lin_xs]
   sq_error = [(pred[i] - lin_ys[i])**2 for i in range(0, len(lin_ys))]
   mean_sq_error = sum(sq_error) / len(sq_error)
+
+  if SHOW_ALL_GRAPHS:
+    fig_num = FUNCTIONS.index(fun)
+    fig_name = "{0}{1}-{2}.png".format(IMG_DIR, data_set, fun)
+    plt.figure(fig_num)
+    plt.plot(xs, ys, 'ro')
+    plt.plot(xs, pred, 'bx')
+    plt.savefig(fig_name)   
+    plt.title("{0}: {1} fit".format(data_set, fun))
+    plt.show()
 
   return {'coeffs': coeffs, 'err': mean_sq_error}
 
 
 if __name__ == '__main__':
+
+  for arg in sys.argv[1:]:
+    if arg == '--graph' or arg == '-g':
+      SHOW_GRAPH = True
+    elif arg == '--graphall' or arg == '-G':
+      SHOW_ALL_GRAPHS = True
 
   trend_file_name = sys.argv[1]
   print trend_file_name
@@ -55,12 +79,10 @@ if __name__ == '__main__':
   best_fun = None
   least_err = 0
   for fun in FUNCTIONS:
-    regression_dict[fun] = fit_function(fun, xs, ys)
+    regression_dict[fun] = fit_function(fun, data_set, xs, ys)
     err = regression_dict[fun]['err']
     if best_fun == None or err < least_err:
       best_fun = fun
       least_err = err
 
   print best_fun, regression_dict[best_fun]
-
-
