@@ -1,0 +1,17 @@
+Functions of all the scripts in ../code
+
+extract_trend.py
+----------------
+
+Takes 1 argument, the data file. The data file should be in the following format:
+
+name
+x1,y1
+x2,y2
+...
+xn,yn
+
+The script will fit four functions to the data: linear, exponential, log, and
+log(log), and will output the chosen function along with the parameters for
+that function. For function f, the parameters output are a and b, such that
+y = af(x) + b.
